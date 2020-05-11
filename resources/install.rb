@@ -24,9 +24,9 @@ property :install_dir_linux, String, default: '/opt/CVInstall'
 
 # Packages
 property :package_windows, String, default: ''
-property :package_windows_checksum, [String, nil], default: nil
+property :package_windows_checksum, [String, nil]
 property :package_linux, String, default: ''
-property :package_linux_checksum, [String, nil], default: nil
+property :package_linux_checksum, [String, nil]
 
 action :install do
   raise 'Please enter correct plan_name' if new_resource.plan_name.empty?
@@ -54,7 +54,7 @@ action :install do
       path tmp_package
       source new_resource.package_windows
       checksum new_resource.package_windows_checksum unless new_resource.package_windows_checksum.nil?
-      notifies :run, 'powershell_script[unpack_package]', :immediate
+      notifies :run, 'powershell_script[unpack_package]', :immediately
       action :create
     end
 
@@ -109,7 +109,7 @@ action :install do
       source new_resource.package_linux
       checksum new_resource.package_linux_checksum unless new_resource.package_linux_checksum.nil?
       mode '0600'
-      notifies :run, 'bash[unpack_package]', :immediate
+      notifies :run, 'bash[unpack_package]', :immediately
       action :create
     end
 
