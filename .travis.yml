@@ -4,9 +4,9 @@ dist: trusty
 addons:
   apt:
     sources:
-      - chef-stable-trusty
+      - chef-current-xenial
     packages:
-      - chefdk
+      - chef-workstation
 
 install: echo "skip bundle install"
 
@@ -15,10 +15,19 @@ services: docker
 env:
   global:
     secure: Nbw4Kg8lsB/iwPb3Wruhli34OUADFvlwwQcv7AzWuYDg2K1qzRgRqNmC6THdXOdFp9rs8tnaru6lNkhoEsANeGjyl1qN37jyvnjTZdL71BakenNvWyvVGzAuYEQhpHEpDLcV1YrjRiPUAtd1PqVTOysjZWZhOHz7ybW5fe06zuo=
+  jobs:
+    - CHEF_LICENSE=accept
 
 branches:
   only:
     - master
+
+before_script:
+  - eval "$(chef shell-init bash)"
+  - chef --version
+
+script:
+  - cookstyle
 
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_eb8c3d7306b3_key -iv $encrypted_eb8c3d7306b3_iv -in supermarket.pem.enc -out supermarket.pem -d
