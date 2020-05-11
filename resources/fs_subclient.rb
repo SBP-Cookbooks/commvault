@@ -12,9 +12,9 @@ default_action :configure
 property :endpoint, String
 property :subclient_name, String, default: 'default'
 property :filters, Array, default: []
-property :use_cache, [TrueClass, FalseClass], default: true
+property :use_cache, [true, false], default: true
 property :cache_timeout, Integer, default: 43200 # 12 hours
-property :use_local_login, [TrueClass, FalseClass], default: true
+property :use_local_login, [true, false], default: true
 property :login_user, String
 property :login_pass, String
 
