@@ -3,7 +3,7 @@ maintainer       'DMS Team'
 maintainer_email 'int-dms@schubergphilis.com'
 license          'Apache-2.0'
 description      'Installs and Configured CommVault client software'
-version          '0.3.0'
+version          '0.3.1'
 chef_version     '>= 14.0'
 
 issues_url 'https://github.com/sbp-cookbooks/commvault/issues'
