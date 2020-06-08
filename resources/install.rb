@@ -136,6 +136,7 @@ action :install do
 
       # Perform the installation
       bash "Install CommVault #{proxy[:name]}" do
+        cwd new_resource.install_dir_linux
         flags '-x'
         code "#{new_resource.install_dir_linux}/pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
       end
