@@ -6,8 +6,6 @@ include CommVault::Helpers
 
 # rubocop:disable ChefModernize/PowershellScriptExpandArchive
 
-resource_name :commvault_instance
-
 default_action :install
 
 # Properties
