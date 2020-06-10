@@ -8,6 +8,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Fix a bug with the working directory for the installation bash entry (/tmp might be noexec)
 
-## 0.3.0:
+## 0.3.0
 
 - Start of change log

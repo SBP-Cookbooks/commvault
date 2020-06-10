@@ -1,29 +1,31 @@
-Chef Cookbook that Installs and configures a CommVault agent
+# CommVault
 
-## CommVault
+Chef cookbook that installs and configures a CommVault agent.
 
 CommVault is a Data Management solution and this cookbook provides resources to install and configure a CommVault agent.
+
 This cookbook is built using the new terminology and thus requires the use of the authorization code and plans.
+
 Legacy Storage Policies and user/pass is not supported and should not be used
 
 To create the install packages download the installer and create a custom package.
 The only needed packages are FS Core and FS Advanced
 
-* Source: https://github.com/sbp-cookbooks/commvault
-* Binaries: https://github.com/sbp-cookbooks/commvault/releases
+* Source: <https://github.com/sbp-cookbooks/commvault>
+* Binaries: <https://github.com/sbp-cookbooks/commvault/releases>
 
 ## Requirements
 
-- Chef 14.0+
-- CommVault 11.0 SP18+
+* Chef 14.0+
+* CommVault 11.0 SP18+
 
 ### Platforms
 
-- RHEL 7+, CentOS7+
-- RHEL 8+, CentOS8+
-- Windows 2012, 2012 r2
-- Windows 2016
-- Windows 2019
+* RHEL 7+, CentOS7+
+* RHEL 8+, CentOS8+
+* Windows 2012, 2012 r2
+* Windows 2016
+* Windows 2019
 
 ## Resources
 
@@ -83,7 +85,7 @@ end
 
 ## License & Authors
 
-- Author:: Mike van Goor ([mvangoor@schubergphilis.com](mailto:mvangoor@schubergphilis.com))
+* Author:: Mike van Goor ([mvangoor@schubergphilis.com](mailto:mvangoor@schubergphilis.com))
 
 ```text
 Copyright: Schuberg Philis
