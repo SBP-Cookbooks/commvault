@@ -32,7 +32,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
       - name: Run Markdown Lint
-        uses: actionshub/markdownlint@master
+        uses: actionshub/markdownlint@1.2.0
 
   release:
     if: github.ref == 'refs/heads/master'
