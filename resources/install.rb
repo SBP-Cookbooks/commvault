@@ -4,6 +4,8 @@ include CommVault::Api
 include CommVault::Cache
 include CommVault::Helpers
 
+provides :commvault_instance
+
 # rubocop:disable ChefModernize/PowershellScriptExpandArchive
 
 default_action :install

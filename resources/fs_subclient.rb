@@ -4,6 +4,8 @@ include CommVault::Api
 include CommVault::Cache
 include CommVault::Helpers
 
+provides :commvault_fs_subclient
+
 default_action :configure
 
 # Properties
