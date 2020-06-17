@@ -28,6 +28,9 @@ property :package_windows_checksum, [String, nil]
 property :package_linux, String, default: ''
 property :package_linux_checksum, [String, nil]
 
+# Environment variables
+property :bash_env_variables, [Hash, nil], default: nil
+
 action :install do
   raise 'Please enter correct plan_name' if new_resource.plan_name.empty?
   raise 'Please enter correct auth_code' if new_resource.auth_code.empty?
@@ -117,6 +120,7 @@ action :install do
     bash 'unpack_package' do
       cwd new_resource.install_dir_linux
       code "tar xf #{tmp_package}"
+      environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
       action :nothing
     end
 
@@ -138,6 +142,7 @@ action :install do
       bash "Install CommVault #{proxy[:name]}" do
         cwd new_resource.install_dir_linux
         code "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
+        environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
       end
 
       installed = true
