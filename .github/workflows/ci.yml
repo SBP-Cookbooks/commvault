@@ -49,14 +49,14 @@ jobs:
         uses: actionshub/chef-install@main
       - name: Release
         run: |
-          if git tag | grep -q v$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g); then
+          TAG_NEW=v$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g)
+          if git tag | grep -q $TAG_NEW; then
             echo "Cookbook version is already tagged, skipping job"
             exit 0
           fi
           git config --global user.email "cookbooks@schubergphilis.com"
           git config --global user.name "SBP Cookbooks CI"
-          echo "$SUPERMARKET_PEM" > supermarket.pem
-          knife supermarket share -o .. --config-option=node_name=sbp-cookbooks --config-option=client_key=supermarket.pem $(grep "^name" metadata.rb | awk '{print $2}' | sed s/\'//g)
+          git tag $TAG_NEW
+          git push origin $TAG_NEW
         env:
           CHEF_LICENSE: accept-no-persist
-          SUPERMARKET_PEM: ${{ secrets.SUPERMARKET_PEM }}
