@@ -57,8 +57,16 @@ action :install do
       path tmp_package
       source new_resource.package_windows
       checksum new_resource.package_windows_checksum unless new_resource.package_windows_checksum.nil?
+      notifies :delete, "directory[#{new_resource.install_dir_windows}\\pkg]", :immediately
       notifies :run, 'powershell_script[unpack_package]', :immediately
       action :create
+    end
+
+    # Clean the target directory
+    directory "#{new_resource.install_dir_windows}\\pkg" do
+      ignore_failure true
+      recursive true
+      action :nothing
     end
 
     # Extract the package
@@ -112,8 +120,16 @@ action :install do
       source new_resource.package_linux
       checksum new_resource.package_linux_checksum unless new_resource.package_linux_checksum.nil?
       mode '0600'
+      notifies :delete, "directory[#{new_resource.install_dir_linux}/pkg]", :immediately
       notifies :run, 'bash[unpack_package]', :immediately
       action :create
+    end
+
+    # Clean the target directory
+    directory "#{new_resource.install_dir_linux}/pkg" do
+      ignore_failure true
+      recursive true
+      action :nothing
     end
 
     # Extract the package
