@@ -56,7 +56,7 @@ jobs:
           git config --global user.email "cookbooks@schubergphilis.com"
           git config --global user.name "SBP Cookbooks CI"
           echo "$SUPERMARKET_PEM" > supermarket.pem
-          knife supermarket share -o .. --config-option=node_name=sbp-cookbooks --config-option=client_key=/tmp/supermarket.pem $(grep -oP "(?<=name ')[^' ]+" ./metadata.rb)
+          knife supermarket share -o .. --config-option=node_name=sbp-cookbooks --config-option=client_key=/tmp/supermarket.pem $(grep "^name" metadata.rb | awk '{print $2}' | sed s/\'//g)
         env:
           CHEF_LICENSE: accept-no-persist
           SUPERMARKET_PEM: ${{ secrets.SUPERMARKET_PEM }}
