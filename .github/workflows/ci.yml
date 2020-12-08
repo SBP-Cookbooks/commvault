@@ -50,10 +50,10 @@ jobs:
       - name: Release
         run: |
           COOKBOOK_NAME=$(grep "^name" metadata.rb | awk '{print $2}' | sed s/\'//g)
-          COOKBOOK_VERSION="v$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g)"
+          COOKBOOK_VERSION=$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g)
           echo "NAME: ${COOKBOOK_NAME}"
           echo "VERSION: ${COOKBOOK_VERSION}"
-          if git tag | grep -q $COOKBOOK_VERSION; then
+          if git tag | grep -q v$COOKBOOK_VERSION; then
             echo "Cookbook version is already tagged, skipping job"
             exit 0
           fi
@@ -63,8 +63,8 @@ jobs:
           fi
           git config --global user.email "cookbooks@schubergphilis.com"
           git config --global user.name "SBP Cookbooks CI"
-          git tag $COOKBOOK_VERSION
-          git push origin $COOKBOOK_VERSION
+          git tag v$COOKBOOK_VERSION
+          git push origin v$COOKBOOK_VERSION
           echo "$SUPERMARKET_PEM" > supermarket.pem
           knife supermarket share -o .. --config-option=node_name=sbp-cookbooks --config-option=client_key=supermarket.pem $COOKBOOK_NAME
         env:
