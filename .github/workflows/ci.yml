@@ -50,7 +50,7 @@ jobs:
       - name: Release
         run: |
           COOKBOOK_NAME=$(grep "^name" metadata.rb | awk '{print $2}' | sed s/\'//g)
-          COOKBOOK_VERSION=$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g)
+          COOKBOOK_VERSION="v$(grep "^version" metadata.rb | awk '{print $2}' | sed s/\'//g)"
           if git tag | grep -q $COOKBOOK_VERSION; then
             echo "Cookbook version is already tagged, skipping job"
             exit 0
