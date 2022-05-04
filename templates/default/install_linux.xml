@@ -16,9 +16,9 @@
                         <clientGroups clientGroupName=""/>
                 </clientInfo>
                 <components>
-                        <componentInfo ComponentId="1003" ComponentName="Base0 Module" consumeLicense="0"/>
-                        <componentInfo ComponentId="1002" ComponentName="File System Core" consumeLicense="0"/>
-                        <componentInfo ComponentId="1101" ComponentName="File System" consumeLicense="0"/>
+                        <componentInfo ComponentId="1003" ComponentName="Base0 Module" consumeLicense="0" osType="Unix"/>
+                        <componentInfo ComponentId="1002" ComponentName="File System Core" consumeLicense="0" osType="Unix"/>
+                        <componentInfo ComponentId="1101" ComponentName="File System" consumeLicense="0" osType="Unix"/>
                         <fileSystem>
                                 <selectedSubclientPolicy subclientPolicyId="" subclientPolicyName=""/>
                         </fileSystem>
