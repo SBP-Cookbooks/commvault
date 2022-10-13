@@ -16,7 +16,7 @@ default_action :install
 property :auth_code, String
 property :cs_name, String
 property :cs_fqdn, String
-property :plan_name, String, [String, nil], default: nil
+property :plan_name, [String, nil], default: nil
 property :proxies, Array, default: []
 property :registration_timeout, Integer, default: 600 # 10 minutes
 
