@@ -36,8 +36,8 @@ The only needed packages are FS Core and FS Advanced
 | auth_code                | String        | N/A                        | The authorization code (either global CommCell or company/tenant)                                                                             |
 | cs_name                  | String        | N/A                        | The client name of the CommServe                                                                                                              |
 | cs_fqdn                  | String        | N/A                        | The Fully Qualified Domain Name of the CommServe                                                                                              |
-| plan_name                | String        | N/A                        | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
-| proxies                  | Array         | []                         | Error log location. Defaults to platform specific locations, see libraries/helpers.rb                                                         |
+| plan_name                | String        | nil                        | The plan name to be used for this installation (optional)
+| proxies                  | Array         | []                         | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
 | registration_timeout     | Integer       | 600                        | Timeout to wait for a succesful registration                                                                                                  |
 | install_dir_windows      | String        | C:\Windows\Temp\CVInstall  | Location we use to store files and configurations used for installation on windows                                                            |
 | install_dir_linux        | String        | /opt/CVInstall             | Location we use to store files and configurations used for installation on Linux                                                              |
@@ -48,14 +48,13 @@ The only needed packages are FS Core and FS Advanced
 
 #### Example
 
-```
+```ruby
 commvault_instance 'Instance001' do
   package_linux 'https://some.url/CommVault_SP18_Linux.tar'
   package_windows 'https://some.url/CommVault_SP18_Windows.zip'
   auth_code '3SAFB5CA'
   cs_name 'cell01'
   cs_fqdn 'cell01.some.url'
-  plan_name 'Plan_30_days'
   proxies [ { 'name': 'proxy01', 'fqdn': 'proxy01.some.url' }, { 'name': 'proxy02', 'fqdn': 'proxy02.some.url' } ]
 end
 ```
@@ -75,7 +74,7 @@ end
 
 #### Example
 
-```
+```ruby
 commvault_fs_subclient 'default' do
   endpoint 'https://api.some.url/webconsole/api'
   subclient_name 'default'
