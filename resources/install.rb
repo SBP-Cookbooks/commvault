@@ -16,7 +16,7 @@ default_action :install
 property :auth_code, String
 property :cs_name, String
 property :cs_fqdn, String
-property :plan_name, String
+property :plan_name, String, [String, nil], default: nil
 property :proxies, Array, default: []
 property :registration_timeout, Integer, default: 600 # 10 minutes
 
@@ -91,8 +91,13 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
+      install_command = if new_resource.plan_name.nil? || new_resource.plan_name.empty?
+                          "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403"
+                        else
+                          "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
+                        end
       powershell_script "Install CommVault #{proxy[:name]}" do
-        code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
+        code install_command
       end
 
       installed = true
@@ -156,7 +161,7 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
-      install_command = if new_resource.plan_name.empty?
+      install_command = if new_resource.plan_name.nil? || new_resource.plan_name.empty?
                           "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403"
                         else
                           "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
