@@ -6,6 +6,8 @@ include CommVault::Helpers
 
 provides :commvault_fs_subclient
 
+unified_mode true if respond_to? :unified_mode
+
 default_action :configure
 
 # Properties

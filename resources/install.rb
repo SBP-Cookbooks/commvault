@@ -6,6 +6,8 @@ include CommVault::Helpers
 
 provides :commvault_instance
 
+unified_mode true if respond_to? :unified_modes
+
 # rubocop:disable ChefModernize/PowershellScriptExpandArchive
 
 default_action :install
@@ -32,7 +34,6 @@ property :package_linux_checksum, [String, nil]
 property :bash_env_variables, [Hash, nil], default: nil
 
 action :install do
-  raise 'Please enter correct plan_name' if new_resource.plan_name.empty?
   raise 'Please enter correct auth_code' if new_resource.auth_code.empty?
 
   if cvlt_already_installed?
@@ -155,9 +156,14 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
+      install_command = if new_resource.plan_name.empty?
+                          "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403"
+                        else
+                          "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
+                        end
       bash "Install CommVault #{proxy[:name]}" do
         cwd new_resource.install_dir_linux
-        code "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
+        code install_command
         environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
       end
 

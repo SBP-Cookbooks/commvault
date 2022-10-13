@@ -55,7 +55,7 @@ module CommVault
       node.default['commvault']['cache'][entry]['timestamp'] = Time.now.getutc.to_i
 
       Chef::Log.debug "Cache file: [#{cache_file}]"
-      File.open(cache_file, 'w') do |f|
+      File.write(cache_file) do |f|
         f.write(JSON.pretty_generate(node['commvault']['cache']))
       end
     end
