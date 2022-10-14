@@ -55,7 +55,7 @@ module CommVault
       node.default['commvault']['cache'][entry]['timestamp'] = Time.now.getutc.to_i
 
       Chef::Log.debug "Cache file: [#{cache_file}]"
-      File.write(cache_file, JSON.pretty_generate(node['commvault']['cache']))s
+      File.write(cache_file, JSON.pretty_generate(node['commvault']['cache']))
     end
 
     def cache_delete
