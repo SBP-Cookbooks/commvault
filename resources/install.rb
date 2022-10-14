@@ -16,7 +16,7 @@ default_action :install
 property :auth_code, String
 property :cs_name, String
 property :cs_fqdn, String
-property :plan_name, [String, nil], default: nil
+property :plan_name, [String, nil]
 property :proxies, Array, default: []
 property :registration_timeout, Integer, default: 600 # 10 minutes
 
@@ -148,10 +148,18 @@ action :install do
 
     # Place an install.xml with our defaults as the default version has wrong defaults.
     # This should be addressed in a future release, making this obsolete...
-    template tmp_xml do
-      source 'install_linux.xml'
-      cookbook 'commvault'
-      mode '0644'
+    if new_resource.plan_name.nil? || new_resource.plan_name.empty?
+      template tmp_xml do
+        source 'install_linux_installed.xml'
+        cookbook 'commvault'
+        mode '0644'
+      end
+    else
+      template tmp_xml do
+        source 'install_linux.xml'
+        cookbook 'commvault'
+        mode '0644'
+      end
     end
 
     installed = false
