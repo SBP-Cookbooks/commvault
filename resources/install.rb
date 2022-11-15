@@ -34,6 +34,7 @@ property :package_linux_checksum, [String, nil]
 property :bash_env_variables, [Hash, nil], default: nil
 
 action :install do
+  raise 'Please enter correct plan_name' if new_resource.plan_name.empty? 
   raise 'Please enter correct auth_code' if new_resource.auth_code.empty?
 
   if cvlt_already_installed?
@@ -91,13 +92,8 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
-      install_command = if new_resource.plan_name.nil? || new_resource.plan_name.empty?
-                          "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403"
-                        else
-                          "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
-                        end
       powershell_script "Install CommVault #{proxy[:name]}" do
-        code install_command
+        code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
       end
 
       installed = true
