@@ -34,7 +34,7 @@ property :package_linux_checksum, [String, nil]
 property :bash_env_variables, [Hash, nil], default: nil
 
 action :install do
-  raise 'Please enter correct plan_name' if new_resource.plan_name.empty? 
+  raise 'Please enter correct plan_name' if new_resource.plan_name.empty?
   raise 'Please enter correct auth_code' if new_resource.auth_code.empty?
 
   if cvlt_already_installed?
