@@ -6,7 +6,7 @@ include CommVault::Helpers
 
 provides :commvault_instance
 
-unified_mode true if respond_to? :unified_modes
+unified_mode true if respond_to? :unified_mode
 
 # rubocop:disable ChefModernize/PowershellScriptExpandArchive
 
@@ -16,7 +16,7 @@ default_action :install
 property :auth_code, String
 property :cs_name, String
 property :cs_fqdn, String
-property :plan_name, [String, nil]
+property :plan_name, String
 property :proxies, Array, default: []
 property :registration_timeout, Integer, default: 600 # 10 minutes
 
@@ -148,18 +148,10 @@ action :install do
 
     # Place an install.xml with our defaults as the default version has wrong defaults.
     # This should be addressed in a future release, making this obsolete...
-    if new_resource.plan_name.nil? || new_resource.plan_name.empty?
-      template tmp_xml do
-        source 'install_linux_installed.xml'
-        cookbook 'commvault'
-        mode '0644'
-      end
-    else
-      template tmp_xml do
-        source 'install_linux.xml'
-        cookbook 'commvault'
-        mode '0644'
-      end
+    template tmp_xml do
+      source 'install_linux.xml'
+      cookbook 'commvault'
+      mode '0644'
     end
 
     installed = false
@@ -169,14 +161,9 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
-      install_command = if new_resource.plan_name.nil? || new_resource.plan_name.empty?
-                          "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403"
-                        else
-                          "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
-                        end
       bash "Install CommVault #{proxy[:name]}" do
         cwd new_resource.install_dir_linux
-        code install_command
+        code "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
         environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
       end
 
