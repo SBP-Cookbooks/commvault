@@ -105,7 +105,7 @@ module CommVault
         filters.each do |entry|
           tmp.push(%({ \"excludePath\": #{entry.dump} }))
         end
-        body = "{ \"subClientProperties\": { \"fsIncludeFilterOperationType\": 4, \"fsExcludeFilterOperationType\": 1, \"fsContentOperationType\": 1, \"useLocalContent\": true, \"fsSubClientProp\": { \"useGlobalFilters\": 2, \"customSubclientContentFlags\": 0, \"backupSystemState\": true, \"customSubclientFlag\": true, \"openvmsBackupDate\": false, \"includePolicyFilters\": true }, \"content\": [ #{tmp.join(',')} ] } }"
+        body = %({ \"subClientProperties\": { \"fsIncludeFilterOperationType\": 4, \"fsExcludeFilterOperationType\": 1, \"fsContentOperationType\": 1, \"useLocalContent\": true, \"fsSubClientProp\": { \"useGlobalFilters\": 2, \"customSubclientContentFlags\": 0, \"backupSystemState\": true, \"customSubclientFlag\": true, \"openvmsBackupDate\": false, \"includePolicyFilters\": true }, \"content\": [ #{tmp.join(',')} ] } })
       else
         body = '{ "subClientProperties": { "useLocalContent": false } }'
       end
