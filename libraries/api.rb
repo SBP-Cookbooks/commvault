@@ -98,9 +98,9 @@ module CommVault
         end
         tmp = []
         if platform?('windows')
-          tmp.push('{ "path": "\\\\" }')
+          tmp.push(%({ "path": "\\\\" }))
         else
-          tmp.push('{ "path": "/" }')
+          tmp.push(%({ "path": "/" }))
         end
         filters.each do |entry|
           tmp.push(%({ \"excludePath\": #{entry.dump} }))
