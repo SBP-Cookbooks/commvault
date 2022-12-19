@@ -21,7 +21,7 @@ module CommVault
 
     def cv_token_api(endpoint, user, pass)
       url = URI("#{endpoint}/Login")
-      body = %({ \"username\": #{user.dump}, \"password\": #{Base64.strict_encode64(pass).dump}, })
+      body = { "username": user, "password": Base64.strict_encode64(pass) }
       Chef::Log.debug "Current body: [#{body}]"
       response = _post(url, nil, body)
       raise "Incorrect output received while logging into REST API endpoint #{endpoint}" unless response
@@ -51,7 +51,7 @@ module CommVault
     def cv_fs_reconfigure(endpoint, cv_token)
       clientid = _cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/Client/License/Reconfigure")
-      body = "{ \"clientInfo\": { \"clientId\": #{clientid} }, \"platformTypes\": [ 1 ], \"appTypes\": [ { \"applicationId\": 29 } ] }"
+      body = { "clientInfo": { "clientId": clientid }, "platformTypes": [ 1 ], "appTypes": [ { "applicationId": 29 } ] }
       response = _post(url, cv_token, body)
       raise 'Incorrect output received while reconfiguring file system agent' unless response
       raise "API gave error code [#{response.code}] for our request to reconfigure file system agent\nResponse: [#{response.message}]" if response.code.to_i != 200
@@ -61,7 +61,7 @@ module CommVault
     def cv_install_updates(endpoint, cv_token)
       clientid = _cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/CreateTask")
-      body = "{ \"taskInfo\": { \"task\": { \"taskType\": 1 }, \"subTasks\": [ { \"subTask\": { \"subTaskType\": 1, \"operationType\": 4020 }, \"options\": { \"adminOpts\": { \"updateOption\": { \"ignoreRunningJobs\": true, \"rebootClient\": false, \"clientAndClientGroups\": [ { \"clientSidePackage\": true, \"clientId\": #{clientid}, \"consumeLicense\": true } ], \"clientId\": [ #{clientid} ], \"installUpdatesJobType\": { \"installUpdates\": true } } } } } ] } }"
+      body = { "taskInfo": { "task": { "taskType": 1 }, "subTasks": [ { "subTask": { "subTaskType": 1, "operationType": 4020 }, "options": { "adminOpts": { "updateOption": { "ignoreRunningJobs": true, "rebootClient": false, "clientAndClientGroups": [ { "clientSidePackage": true, "clientId": clientid, "consumeLicense": true } ], "clientId": [ clientid ], "installUpdatesJobType": { "installUpdates": true } } } } } ] } }
       _post(url, cv_token, body)
     end
 
