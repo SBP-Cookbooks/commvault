@@ -98,16 +98,16 @@ module CommVault
         end
         tmp = []
         if platform?('windows')
-          tmp.push(%({ "path": "\\\\" }))
+          tmp.push({ "path": '\\\\' })
         else
-          tmp.push(%({ "path": "/" }))
+          tmp.push({ "path": '/' })
         end
         filters.each do |entry|
-          tmp.push(%({ \"excludePath\": #{entry.dump} }))
+          tmp.push({ "excludePath": entry })
         end
-        body = %({ \"subClientProperties\": { \"fsIncludeFilterOperationType\": 4, \"fsExcludeFilterOperationType\": 1, \"fsContentOperationType\": 1, \"useLocalContent\": true, \"fsSubClientProp\": { \"useGlobalFilters\": 2, \"customSubclientContentFlags\": 0, \"backupSystemState\": true, \"customSubclientFlag\": true, \"openvmsBackupDate\": false, \"includePolicyFilters\": true }, \"content\": [ #{tmp.join(',')} ] } })
+        body = { "subClientProperties": { "fsIncludeFilterOperationType": 4, "fsExcludeFilterOperationType": 1, "fsContentOperationType": 1, "useLocalContent": true, "fsSubClientProp": { "useGlobalFilters": 2, "customSubclientContentFlags": 0, "backupSystemState": true, "customSubclientFlag": true, "openvmsBackupDate": false, "includePolicyFilters": true }, "content": tmp } }
       else
-        body = '{ "subClientProperties": { "useLocalContent": false } }'
+        body = { "subClientProperties": { "useLocalContent": false } }
       end
       Chef::Log.debug "Current body: [#{body}]"
       response = _post(url, cv_token, body)
@@ -150,7 +150,7 @@ module CommVault
       request['Accept'] = 'application/json'
       request['Authtoken'] = token unless token.nil?
       request['Content-Type'] = 'application/json'
-      request.body = body
+      request.body = JSON.dump(body)
       http.request(request)
     end
 
