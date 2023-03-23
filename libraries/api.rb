@@ -37,8 +37,28 @@ module CommVault
       end
     end
 
+    def cv_fs_installed(endpoint, cv_token)
+      clientid = cv_client_id(endpoint, cv_token)
+      url = URI("#{endpoint}/Agent?clientId=#{clientid}")
+      data = JSON.parse(_get(url, cv_token).read_body)
+      if data && data.key?('agentProperties')
+        data = data['agentProperties'].select { |x| [33, 29].include?(x['idaEntity']['applicationId'].to_i) }
+        return data.length == 1
+      end
+      false
+    end
+
+    def cv_install_fs(endpoint, cv_token)
+      clientid = cv_client_id(endpoint, cv_token)
+      url = URI("#{endpoint}/Agent")
+      body = { "createFSAgent": true, "agentProperties": { "idaEntity": { "clientId": clientid } } }
+      response = _post(url, cv_token, body)
+      raise 'Incorrect output received while reconfiguring file system agent' unless response
+      raise "API gave error code [#{response.code}] for our request to install file system agent\nResponse: [#{response.message}]" if response.code.to_i != 200
+    end
+
     def cv_fs_licensed(endpoint, cv_token)
-      clientid = _cv_client_id(endpoint, cv_token)
+      clientid = cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/Client/#{clientid}/License")
       data = JSON.parse(_get(url, cv_token).read_body)
       if data && data.key?('licensesInfo')
@@ -49,7 +69,7 @@ module CommVault
     end
 
     def cv_fs_reconfigure(endpoint, cv_token)
-      clientid = _cv_client_id(endpoint, cv_token)
+      clientid = cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/Client/License/Reconfigure")
       body = { "clientInfo": { "clientId": clientid }, "platformTypes": [ 1 ], "appTypes": [ { "applicationId": 29 } ] }
       response = _post(url, cv_token, body)
@@ -59,7 +79,7 @@ module CommVault
 
     # This does not work with the current way we get the token (does not have enough rights), keeping around for potential future use)
     def cv_install_updates(endpoint, cv_token)
-      clientid = _cv_client_id(endpoint, cv_token)
+      clientid = cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/CreateTask")
       body = { "taskInfo": { "task": { "taskType": 1 }, "subTasks": [ { "subTask": { "subTaskType": 1, "operationType": 4020 }, "options": { "adminOpts": { "updateOption": { "ignoreRunningJobs": true, "rebootClient": false, "clientAndClientGroups": [ { "clientSidePackage": true, "clientId": clientid, "consumeLicense": true } ], "clientId": [ clientid ], "installUpdatesJobType": { "installUpdates": true } } } } } ] } }
       _post(url, cv_token, body)
@@ -72,12 +92,36 @@ module CommVault
 
       # If the filters are empty we assume no plan override
       if filters.empty?
+        Chef::Log.debug 'No filters to act on'
         # Only reset to plan based if we aren't deriving
         _cv_fs_subclient_set_plan_override(endpoint, cv_token, subclient_name, false, filters) if cv_fs_subclient_is_plan_override(endpoint, cv_token, subclient_name)
       else
         # Always set the filters as they might have changed (we do an override here)
         _cv_fs_subclient_set_plan_override(endpoint, cv_token, subclient_name, true, filters)
       end
+    end
+
+    def cv_fs_subclient_has_plan(endpoint, cv_token, subclient_name)
+      props = _cv_fs_properties(endpoint, cv_token, subclient_name)
+      raise 'Received incorrect output from CommVault API' unless props
+      if props['subClientProperties'][0].key?('planEntity')
+        Chef::Log.debug "Plan entity: #{props['subClientProperties'][0]['planEntity']}"
+      else
+        Chef::Log.debug 'planEntity not set'
+      end
+      props['subClientProperties'][0].key?('planEntity') && props['subClientProperties'][0]['planEntity'].key?('planName')
+    end
+
+    def cv_fs_subclient_assign_plan(endpoint, cv_token, subclient_name, plan_name)
+      unless subclient_name == 'default'
+        raise 'We are unable to manage any subclient other than default for now'
+      end
+      url = URI("#{endpoint}/Subclient/#{_cv_fs_subclient_id(endpoint, cv_token, subclient_name)}")
+      body = { "subClientProperties": { "planEntity": { "_type_": 158, "planName": plan_name } } }
+      Chef::Log.debug "Current body (cv_fs_subclient_assign_plan): [#{body}]"
+      response = _post(url, cv_token, body)
+      raise "Incorrect output received while updating subclient #{subclient_name}" unless response
+      raise "API gave error code [#{response.code}] for our request to update the subclient. This most likely means the filters are incorrect. You can run chef with debug log level to see the actual body" if response.code.to_i != 200
     end
 
     def cv_fs_subclient_is_plan_override(endpoint, cv_token, subclient_name)
@@ -98,7 +142,7 @@ module CommVault
         end
         tmp = []
         if platform?('windows')
-          tmp.push({ "path": '\\\\' })
+          tmp.push({ "path": '\\' })
         else
           tmp.push({ "path": '/' })
         end
@@ -109,24 +153,26 @@ module CommVault
       else
         body = { "subClientProperties": { "useLocalContent": false } }
       end
-      Chef::Log.debug "Current body: [#{body}]"
+      Chef::Log.debug "Current body (_cv_fs_subclient_set_plan_override): [#{body}]"
       response = _post(url, cv_token, body)
       raise "Incorrect output received while updating subclient #{subclient_name}" unless response
       raise "API gave error code [#{response.code}] for our request to update the subclient. This most likely means the filters are incorrect. You can run chef with debug log level to see the actual body" if response.code.to_i != 200
     end
 
-    def _cv_client_id(endpoint, cv_token)
+    def cv_client_id(endpoint, cv_token)
       url = URI("#{endpoint}/GetId?clientname=#{cv_client_name}")
       response = _get(url, cv_token)
       raise "Unable to get client id for client name [#{cv_client_name}]" unless response && response.code.to_i == 200
       cid = _extract(response.body(), 'clientId')
       raise "Incorrect client id received from API -> [#{cid}], code: [#{response.code}]" unless cid && cid.match(/^(\d)+$/)
-      cid
+      cid.to_i
     end
 
     def _cv_fs_subclient_id(endpoint, cv_token, subclient_name)
       url = URI("#{endpoint}/GetId?clientname=#{cv_client_name}&agent=File%20System&backupset=defaultBackupSet&subclient=#{subclient_name}")
-      _extract(_get(url, cv_token).read_body, 'subclientId')
+      subclient_id = _extract(_get(url, cv_token).read_body, 'subclientId')
+      raise "Subclient #{subclient_name} did not produce correct output (numeric id)" if subclient_id == false || !subclient_id.match(/^(\d)+$/)
+      subclient_id
     end
 
     def _cv_fs_properties(endpoint, cv_token, subclient_name)

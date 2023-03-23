@@ -16,7 +16,8 @@ default_action :install
 property :auth_code, String
 property :cs_name, String
 property :cs_fqdn, String
-property :plan_name, String
+property :plan_name, [String, nil]
+property :licensed, [true, false], default: false
 property :proxies, Array, default: []
 property :registration_timeout, Integer, default: 600 # 10 minutes
 
@@ -34,13 +35,14 @@ property :package_linux_checksum, [String, nil]
 property :bash_env_variables, [Hash, nil], default: nil
 
 action :install do
-  raise 'Please enter correct plan_name' if new_resource.plan_name.empty?
   raise 'Please enter correct auth_code' if new_resource.auth_code.empty?
 
   if cvlt_already_installed?
     Chef::Log.info 'Instance is already installed'
     return
   end
+
+  raise 'Input selected (plan) requires us to be licensed' if new_resource.licensed == false && !new_resource.plan_name.nil?
 
   if platform?('windows')
     # Temporary location of package to download
@@ -83,6 +85,9 @@ action :install do
     template tmp_xml do
       source 'install_windows.xml'
       cookbook 'commvault'
+      variables(
+        licensed: new_resource.licensed
+      )
     end
 
     installed = false
@@ -92,8 +97,14 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
-      powershell_script "Install CommVault #{proxy[:name]}" do
-        code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /cshostname #{new_resource.cs_fqdn} /csclientname #{new_resource.cs_name} /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
+      if new_resource.plan_name.nil?
+        powershell_script "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
+          code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403"
+        end
+      else
+        powershell_script "Install CommVault #{proxy[:name]}" do
+          code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
+        end
       end
 
       installed = true
@@ -148,6 +159,9 @@ action :install do
       source 'install_linux.xml'
       cookbook 'commvault'
       mode '0644'
+      variables(
+        licensed: new_resource.licensed
+      )
     end
 
     installed = false
@@ -157,10 +171,18 @@ action :install do
       next unless cvlt_port_open?(proxy[:fqdn], 8403)
 
       # Perform the installation
-      bash "Install CommVault #{proxy[:name]}" do
-        cwd new_resource.install_dir_linux
-        code "./pkg/silent_install -p #{tmp_xml} -authcode #{new_resource.auth_code} -cshost #{new_resource.cs_fqdn} -fwtype 2 -csclientname #{new_resource.cs_name} -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -tunnelport 8403 -plan #{new_resource.plan_name}"
-        environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
+      if new_resource.plan_name.nil?
+        bash "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
+          cwd new_resource.install_dir_linux
+          code "./Unix/silent_install -silent -p #{tmp_xml} -authcode #{new_resource.auth_code} -fwtype 2 -tunnelport 8403 -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]}"
+          environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
+        end
+      else
+        bash "Install CommVault #{proxy[:name]}" do
+          cwd new_resource.install_dir_linux
+          code "./Unix/silent_install -silent -p #{tmp_xml} -authcode #{new_resource.auth_code} -fwtype 2 -tunnelport 8403 -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -plan #{new_resource.plan_name}"
+          environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
+        end
       end
 
       installed = true
@@ -193,7 +215,7 @@ action :install do
       end
       unless cvlt_registered?
         puts "CommVault registration unsuccesful after #{new_resource.registration_timeout} seconds, uninstalling"
-        # Call uninstall
+        # Call uninstall - TODO
       end
     end
   end
