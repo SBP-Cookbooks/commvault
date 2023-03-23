@@ -17,7 +17,7 @@ property :filters, Array, default: []
 property :use_cache, [true, false], default: true
 property :cache_timeout, Integer, default: 43200 # 12 hours
 property :use_local_login, [true, false], default: true
-property :plan_name, [String, nil]
+property :plan_name, [String, nil], defaukt: nil
 property :login_user, String
 property :login_pass, String
 
