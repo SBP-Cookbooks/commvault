@@ -6,8 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## 1.0.0
 
-- replace File.open with File.write
-- Commvault has changed the way it handles `restore only` installations and we therefor need to register the fs agent post instllation now
+- Replace `File.open` with `File.write`
+- Commvault has changed the way it handles `restore only` installations, we now need to register the file system agent post instllation
 - Add support for plan rules in a way that `plan_name` can be empty and it waits for plan rules to execute
 - Add some logic to wait for cache to populate on the Commvault side to get the client id
 - Add support for 'registering' the file system agent as Commvault made it optional in 11.23

@@ -70,7 +70,7 @@ end
 | use_cache                | [TrueClass, FalseClass] | true                       | By default this cookbook does caching to limit hammering of the API, but with this you can disable it                               |
 | cache_timeout            | Integer                 | 43200                      | The time to live for cache entries before we talk to the API again                                                                  |
 | use_local_login          | [TrueClass, FalseClass] | true                       | By default we use local qlogin with localadmin impersonation, if you would like to add user/pass set this to false                  |
-| plan_name                | [String,nil]            | nil                        | Can be used to assign a plan if at any point a client is switched from unmanaged to managed                                         |
+| plan_name                | [String, nil]           | nil                        | Can be used to assign a plan if at any point a client is switched from unmanaged to managed                                         |
 | login_user               | String                  | N/A                        | If use_local_login is false this is the user to use for authentication against the endpoint                                         |
 | login_pass               | String                  | N/A                        | If use_local_login is false this is the password to use for authentication against the endpoint                                     |
 

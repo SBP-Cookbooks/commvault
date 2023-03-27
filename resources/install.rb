@@ -215,7 +215,7 @@ action :install do
       end
       unless cvlt_registered?
         puts "CommVault registration unsuccesful after #{new_resource.registration_timeout} seconds, uninstalling"
-        # Call uninstall - TODO
+        # TODO: Call uninstall
       end
     end
   end

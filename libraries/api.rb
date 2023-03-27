@@ -113,9 +113,7 @@ module CommVault
     end
 
     def cv_fs_subclient_assign_plan(endpoint, cv_token, subclient_name, plan_name)
-      unless subclient_name == 'default'
-        raise 'We are unable to manage any subclient other than default for now'
-      end
+      raise 'We are unable to manage any subclient other than default for now' unless subclient_name == 'default'
       url = URI("#{endpoint}/Subclient/#{_cv_fs_subclient_id(endpoint, cv_token, subclient_name)}")
       body = { "subClientProperties": { "planEntity": { "_type_": 158, "planName": plan_name } } }
       Chef::Log.debug "Current body (cv_fs_subclient_assign_plan): [#{body}]"
