@@ -17,7 +17,7 @@ The only needed packages are FS Core and FS Advanced
 ## Requirements
 
 * Chef 14.0+
-* CommVault 11.0 SP18+
+* CommVault 11.0 SP28 (2022E) +
 
 ### Platforms
 
@@ -31,31 +31,32 @@ The only needed packages are FS Core and FS Advanced
 
 ### commvault_install
 
-| Name                     | Type          | Default                    | Description                                                                                                                                   |
-| -------------------------| --------------| ---------------------------| --------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth_code                | String        | N/A                        | The authorization code (either global CommCell or company/tenant)                                                                             |
-| cs_name                  | String        | N/A                        | The client name of the CommServe                                                                                                              |
-| cs_fqdn                  | String        | N/A                        | The Fully Qualified Domain Name of the CommServe                                                                                              |
-| plan_name                | String        | N/A                        | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
-| proxies                  | Array         | []                         | Error log location. Defaults to platform specific locations, see libraries/helpers.rb                                                         |
-| registration_timeout     | Integer       | 600                        | Timeout to wait for a succesful registration                                                                                                  |
-| install_dir_windows      | String        | C:\Windows\Temp\CVInstall  | Location we use to store files and configurations used for installation on windows                                                            |
-| install_dir_linux        | String        | /opt/CVInstall             | Location we use to store files and configurations used for installation on Linux                                                              |
-| install_windows          | String        | ''                         | This is the location (URL) were we get the .zip package to use during the installation (needs to be FS Core and FS Advanced) on windows       |
-| install_windows_checksum | [String, nil] | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
-| install_linux            | String        | ''                         | This is the location (URL) were we get the .tar package to use during the installation (needs to be FS Core and FS Advanced) on Linux         |
-| install_linux_checksum   | [String, nil] | nil`                       | Checksum to verify the file located at the url on windows                                                                                     |
+| Name                     | Type                    | Default                    | Description                                                                                                                                   |
+| -------------------------| ------------------------| ---------------------------| --------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth_code                | String                  | N/A                        | The authorization code (either global CommCell or company/tenant)                                                                             |
+| cs_name                  | String                  | N/A                        | The client name of the CommServe                                                                                                              |
+| cs_fqdn                  | String                  | N/A                        | The Fully Qualified Domain Name of the CommServe                                                                                              |
+| plan_name                | [String, nil]           | nil                        | The plan name to be used for this installation (optional, left out assumes you use plan rules or manual assignment)                           |
+| licensed                 | [TrueClass, FalseClass] | false                      | Whether a client should be licensed on installation, by default assumes restore only is wanted                                                |
+| proxies                  | Array                   | []                         | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
+| registration_timeout     | Integer                 | 600                        | Timeout to wait for a succesful registration                                                                                                  |
+| install_dir_windows      | String                  | C:\Windows\Temp\CVInstall  | Location we use to store files and configurations used for installation on windows                                                            |
+| install_dir_linux        | String                  | /opt/CVInstall             | Location we use to store files and configurations used for installation on Linux                                                              |
+| install_windows          | String                  | ''                         | This is the location (URL) were we get the .zip package to use during the installation (needs to be FS Core and FS Advanced) on windows       |
+| install_windows_checksum | [String, nil]           | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
+| install_linux            | String                  | ''                         | This is the location (URL) were we get the .tar package to use during the installation (needs to be FS Core and FS Advanced) on Linux         |
+| install_linux_checksum   | [String, nil]           | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
+| bash_env_variables       | [Hash, nil]             | nil                        | Expose option to send extra environment variables to bash commands                                                                            |
 
 #### Example
 
-```
+```ruby
 commvault_instance 'Instance001' do
   package_linux 'https://some.url/CommVault_SP18_Linux.tar'
   package_windows 'https://some.url/CommVault_SP18_Windows.zip'
   auth_code '3SAFB5CA'
   cs_name 'cell01'
   cs_fqdn 'cell01.some.url'
-  plan_name 'Plan_30_days'
   proxies [ { 'name': 'proxy01', 'fqdn': 'proxy01.some.url' }, { 'name': 'proxy02', 'fqdn': 'proxy02.some.url' } ]
 end
 ```
@@ -70,12 +71,13 @@ end
 | use_cache                | [TrueClass, FalseClass] | true                       | By default this cookbook does caching to limit hammering of the API, but with this you can disable it                               |
 | cache_timeout            | Integer                 | 43200                      | The time to live for cache entries before we talk to the API again                                                                  |
 | use_local_login          | [TrueClass, FalseClass] | true                       | By default we use local qlogin with localadmin impersonation, if you would like to add user/pass set this to false                  |
+| plan_name                | [String, nil]           | nil                        | Can be used to assign a plan if at any point a client is switched from unmanaged to managed                                         |
 | login_user               | String                  | N/A                        | If use_local_login is false this is the user to use for authentication against the endpoint                                         |
 | login_pass               | String                  | N/A                        | If use_local_login is false this is the password to use for authentication against the endpoint                                     |
 
 #### Example
 
-```
+```ruby
 commvault_fs_subclient 'default' do
   endpoint 'https://api.some.url/webconsole/api'
   subclient_name 'default'

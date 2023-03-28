@@ -6,6 +6,8 @@ include CommVault::Helpers
 
 provides :commvault_fs_subclient
 
+unified_mode true if respond_to? :unified_mode
+
 default_action :configure
 
 # Properties
@@ -15,6 +17,7 @@ property :filters, Array, default: []
 property :use_cache, [true, false], default: true
 property :cache_timeout, Integer, default: 43200 # 12 hours
 property :use_local_login, [true, false], default: true
+property :plan_name, [String, nil], defaukt: nil
 property :login_user, String
 property :login_pass, String
 
@@ -52,8 +55,44 @@ action :configure do
 
   Chef::Log.debug "Token: [#{api_token}]"
 
+  # Try 3 times (with 10 secs interval) to get the client id (SAFETY PRECAUTION)
+  counter = 0
+  loop do
+    begin
+      cv_client_id(new_resource.endpoint, api_token)
+    rescue
+      Chef::Log.warn "Unable to get client id (counter: #{counter}), retrying after sleep of 10 seconds"
+      sleep(10)
+    end
+    counter += 1
+    break if counter > 3
+
+    # Reinitilize authentication to refresh cache
+    api_token = if new_resource.use_local_login
+                  # Get the api token using qlogin --localadmin
+                  cv_token_local
+                else
+                  # Get the api token using login to the API
+                  cv_token_api(new_resource.endpoint, new_resource.login_user, new_resource.login_pass)
+                end
+
+    Chef::Log.debug "Token: [#{api_token}]"
+  end
+
+  # Commvault does not "install" the file system agent anymore if the installation is done in restore only mode, so do it here
+  cv_install_fs(new_resource.endpoint, api_token) unless cv_fs_installed(new_resource.endpoint, api_token)
+
   # License the File System Agent if not licensed
   cv_fs_reconfigure(new_resource.endpoint, api_token) unless cv_fs_licensed(new_resource.endpoint, api_token)
+
+  unless cv_fs_subclient_has_plan(new_resource.endpoint, api_token, new_resource.subclient_name)
+    if new_resource.plan_name.nil?
+      Chef::Log.warn "Plan has not been assigned to subclient #{new_resource.subclient_name}, waiting for assignment"
+      return
+    else
+      cv_fs_subclient_assign_plan(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.plan_name)
+    end
+  end
 
   # Configure the subclient
   cv_fs_filter(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.filters)
