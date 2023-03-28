@@ -31,21 +31,22 @@ The only needed packages are FS Core and FS Advanced
 
 ### commvault_install
 
-| Name                     | Type          | Default                    | Description                                                                                                                                   |
-| -------------------------| --------------| ---------------------------| --------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth_code                | String        | N/A                        | The authorization code (either global CommCell or company/tenant)                                                                             |
-| cs_name                  | String        | N/A                        | The client name of the CommServe                                                                                                              |
-| cs_fqdn                  | String        | N/A                        | The Fully Qualified Domain Name of the CommServe                                                                                              |
-| plan_name                | [String, nil] | nil                        | The plan name to be used for this installation (optional, left out assumes you use plan rules or manual assignment)                           |
-| proxies                  | Array         | []                         | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
-| registration_timeout     | Integer       | 600                        | Timeout to wait for a succesful registration                                                                                                  |
-| install_dir_windows      | String        | C:\Windows\Temp\CVInstall  | Location we use to store files and configurations used for installation on windows                                                            |
-| install_dir_linux        | String        | /opt/CVInstall             | Location we use to store files and configurations used for installation on Linux                                                              |
-| install_windows          | String        | ''                         | This is the location (URL) were we get the .zip package to use during the installation (needs to be FS Core and FS Advanced) on windows       |
-| install_windows_checksum | [String, nil] | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
-| install_linux            | String        | ''                         | This is the location (URL) were we get the .tar package to use during the installation (needs to be FS Core and FS Advanced) on Linux         |
-| install_linux_checksum   | [String, nil] | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
-| bash_env_variables       | [Hash, nil]   | nil                        | Expose option to send extra environment variables to bash commands                                                                            |
+| Name                     | Type                    | Default                    | Description                                                                                                                                   |
+| -------------------------| ------------------------| ---------------------------| --------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth_code                | String                  | N/A                        | The authorization code (either global CommCell or company/tenant)                                                                             |
+| cs_name                  | String                  | N/A                        | The client name of the CommServe                                                                                                              |
+| cs_fqdn                  | String                  | N/A                        | The Fully Qualified Domain Name of the CommServe                                                                                              |
+| plan_name                | [String, nil]           | nil                        | The plan name to be used for this installation (optional, left out assumes you use plan rules or manual assignment)                           |
+| licensed                 | [TrueClass, FalseClass] | false                      | Whether a client should be licensed on installation, by default assumes restore only is wanted                                                |
+| proxies                  | Array                   | []                         | An array of proxies to connect to (connections directly to CommServe are not supported), this expects a hash of fqdn and name per array entry |
+| registration_timeout     | Integer                 | 600                        | Timeout to wait for a succesful registration                                                                                                  |
+| install_dir_windows      | String                  | C:\Windows\Temp\CVInstall  | Location we use to store files and configurations used for installation on windows                                                            |
+| install_dir_linux        | String                  | /opt/CVInstall             | Location we use to store files and configurations used for installation on Linux                                                              |
+| install_windows          | String                  | ''                         | This is the location (URL) were we get the .zip package to use during the installation (needs to be FS Core and FS Advanced) on windows       |
+| install_windows_checksum | [String, nil]           | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
+| install_linux            | String                  | ''                         | This is the location (URL) were we get the .tar package to use during the installation (needs to be FS Core and FS Advanced) on Linux         |
+| install_linux_checksum   | [String, nil]           | nil                        | Checksum to verify the file located at the url on windows                                                                                     |
+| bash_env_variables       | [Hash, nil]             | nil                        | Expose option to send extra environment variables to bash commands                                                                            |
 
 #### Example
 
