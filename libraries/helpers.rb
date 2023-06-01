@@ -31,7 +31,7 @@ module CommVault
             s = TCPSocket.new(ip_addr, port)
             s.close
             return true
-          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError
+          rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, Errno::ETIMEDOUT
             Chef::Log.error "Can not open socket at: '#{ip_addr}:#{port}'"
             return false
           end
