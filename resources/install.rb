@@ -43,7 +43,7 @@ action :install do
   end
 
   if new_resource.licensed == false && !new_resource.plan_name.nil?
-    Chef::Log.error 'licensed property is false and you provided a plan, this is an inconsistent configuraation setup'
+    Chef::Log.error 'licensed property is false and you provided a plan_name, this is an inconsistent configuration setup'
     Chef::Log.error 'Please either ensure licensed is true and/or remove the plan_name input'
     Chef::Log.error 'Note we will not install the Commvault software untill this is resolved.'
     return
