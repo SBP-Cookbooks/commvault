@@ -85,7 +85,7 @@ module CommVault
       _post(url, cv_token, body)
     end
 
-    def cv_fs_filter(endpoint, cv_token, subclient_name, filters)
+    def cv_fs_filter(endpoint, cv_token, subclient_name, filters, systemstate = true)
       unless filters.instance_of?(Array)
         raise 'We expect filters to be of type Array'
       end
@@ -128,7 +128,7 @@ module CommVault
       props['subClientProperties'][0]['useLocalContent'] == true
     end
 
-    def _cv_fs_subclient_set_plan_override(endpoint, cv_token, subclient_name, status, filters)
+    def _cv_fs_subclient_set_plan_override(endpoint, cv_token, subclient_name, status, filters, systemstate = true)
       unless subclient_name == 'default'
         raise 'We are unable to manage any subclient other than default for now'
       end
@@ -147,7 +147,7 @@ module CommVault
         filters.each do |entry|
           tmp.push({ "excludePath": entry })
         end
-        body = { "subClientProperties": { "fsIncludeFilterOperationType": 4, "fsExcludeFilterOperationType": 1, "fsContentOperationType": 1, "useLocalContent": true, "fsSubClientProp": { "useGlobalFilters": 2, "customSubclientContentFlags": 0, "backupSystemState": true, "customSubclientFlag": true, "openvmsBackupDate": false, "includePolicyFilters": true }, "content": tmp } }
+        body = { "subClientProperties": { "fsIncludeFilterOperationType": 4, "fsExcludeFilterOperationType": 1, "fsContentOperationType": 1, "useLocalContent": true, "fsSubClientProp": { "useGlobalFilters": 2, "customSubclientContentFlags": 0, "backupSystemState": systemstate, "customSubclientFlag": true, "openvmsBackupDate": false, "includePolicyFilters": true }, "content": tmp } }
       else
         body = { "subClientProperties": { "useLocalContent": false } }
       end
