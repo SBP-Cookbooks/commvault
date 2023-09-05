@@ -20,6 +20,7 @@ property :use_local_login, [true, false], default: true
 property :plan_name, [String, nil]
 property :login_user, String
 property :login_pass, String
+property :systemstate, [true, false], default: true, required: false
 
 action :configure do
   raise 'Unable to configure a subclient if there is no Instance001 installed' unless cvlt_already_installed?
@@ -95,7 +96,7 @@ action :configure do
   end
 
   # Configure the subclient
-  cv_fs_filter(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.filters)
+  cv_fs_filter(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.filters, new_resource.systemstate)
 
   # Cache
   if new_resource.use_cache

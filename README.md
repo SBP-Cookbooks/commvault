@@ -74,6 +74,7 @@ end
 | plan_name                | [String, nil]           | nil                        | Can be used to assign a plan if at any point a client is switched from unmanaged to managed                                         |
 | login_user               | String                  | N/A                        | If use_local_login is false this is the user to use for authentication against the endpoint                                         |
 | login_pass               | String                  | N/A                        | If use_local_login is false this is the password to use for authentication against the endpoint                                     |
+| systemstate              | [TrueClass, FalseClass] | true                       | Determines if systemstate should be included in the backup                                                                          |
 
 #### Example
 
