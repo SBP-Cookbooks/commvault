@@ -23,6 +23,7 @@ The only needed packages are FS Core and FS Advanced
 
 * RHEL 7+, CentOS7+
 * RHEL 8+, CentOS8+
+* DEBIAN 12+
 * Windows 2012, 2012 r2
 * Windows 2016
 * Windows 2019
