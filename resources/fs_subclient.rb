@@ -87,12 +87,12 @@ action :configure do
   cv_fs_reconfigure(new_resource.endpoint, api_token) unless cv_fs_licensed(new_resource.endpoint, api_token)
 
   unless cv_fs_subclient_has_plan(new_resource.endpoint, api_token, new_resource.subclient_name)
-    if new_resource.plan_name.nil?
-      Chef::Log.warn "Plan has not been assigned to subclient #{new_resource.subclient_name}, waiting for assignment"
-      return
-    else
-      cv_fs_subclient_assign_plan(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.plan_name)
-    end
+    # if new_resource.plan_name.nil?
+    Chef::Log.warn "Plan has not been assigned to subclient #{new_resource.subclient_name}, waiting for assignment"
+    return
+    # else
+    #   cv_fs_subclient_assign_plan(new_resource.endpoint, api_token, new_resource.subclient_name, new_resource.plan_name)
+    # end
   end
 
   # Configure the subclient

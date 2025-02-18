@@ -112,15 +112,15 @@ module CommVault
       props['subClientProperties'][0].key?('planEntity') && props['subClientProperties'][0]['planEntity'].key?('planName')
     end
 
-    def cv_fs_subclient_assign_plan(endpoint, cv_token, subclient_name, plan_name)
-      raise 'We are unable to manage any subclient other than default for now' unless subclient_name == 'default'
-      url = URI("#{endpoint}/Subclient/#{_cv_fs_subclient_id(endpoint, cv_token, subclient_name)}")
-      body = { "subClientProperties": { "planEntity": { "_type_": 158, "planName": plan_name } } }
-      Chef::Log.debug "Current body (cv_fs_subclient_assign_plan): [#{body}]"
-      response = _post(url, cv_token, body)
-      raise "Incorrect output received while updating subclient #{subclient_name}" unless response
-      raise "API gave error code [#{response.code}] for our request to update the subclient. This most likely means the filters are incorrect. You can run chef with debug log level to see the actual body" if response.code.to_i != 200
-    end
+    # def cv_fs_subclient_assign_plan(endpoint, cv_token, subclient_name, plan_name)
+    #   raise 'We are unable to manage any subclient other than default for now' unless subclient_name == 'default'
+    #   url = URI("#{endpoint}/Subclient/#{_cv_fs_subclient_id(endpoint, cv_token, subclient_name)}")
+    #   body = { "subClientProperties": { "planEntity": { "_type_": 158, "planName": plan_name } } }
+    #   Chef::Log.debug "Current body (cv_fs_subclient_assign_plan): [#{body}]"
+    #   response = _post(url, cv_token, body)
+    #   raise "Incorrect output received while updating subclient #{subclient_name}" unless response
+    #   raise "API gave error code [#{response.code}] for our request to update the subclient. This most likely means the filters are incorrect. You can run chef with debug log level to see the actual body" if response.code.to_i != 200
+    # end
 
     def cv_fs_subclient_is_plan_override(endpoint, cv_token, subclient_name)
       props = _cv_fs_properties(endpoint, cv_token, subclient_name)
