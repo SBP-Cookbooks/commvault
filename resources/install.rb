@@ -103,11 +103,11 @@ action :install do
 
       # Perform the installation
       if new_resource.plan_name.nil?
-        powershell_script "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
+        powershell_script "Install CommVault #{proxy[:name]}" do
           code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403"
         end
       else
-        powershell_script "Install CommVault #{proxy[:name]}" do
+        powershell_script "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
           code "#{new_resource.install_dir_windows}\\pkg\\setup.exe /silent /play #{tmp_xml} /authcode #{new_resource.auth_code} /fwtype 2 /proxyhostname #{proxy[:fqdn]} /proxyclientname #{proxy[:name]} /tunnelport 8403 /plan #{new_resource.plan_name}"
         end
       end
@@ -177,13 +177,13 @@ action :install do
 
       # Perform the installation
       if new_resource.plan_name.nil?
-        bash "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
+        bash "Install CommVault #{proxy[:name]}" do
           cwd new_resource.install_dir_linux
           code "./Unix/silent_install -silent -p #{tmp_xml} -authcode #{new_resource.auth_code} -fwtype 2 -tunnelport 8403 -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]}"
           environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
         end
       else
-        bash "Install CommVault #{proxy[:name]}" do
+        bash "Install CommVault #{proxy[:name]} with plan #{new_resource.plan_name}" do
           cwd new_resource.install_dir_linux
           code "./Unix/silent_install -silent -p #{tmp_xml} -authcode #{new_resource.auth_code} -fwtype 2 -tunnelport 8403 -proxyhost #{proxy[:fqdn]} -proxyclientname #{proxy[:name]} -plan #{new_resource.plan_name}"
           environment new_resource.bash_env_variables unless new_resource.bash_env_variables.nil?
