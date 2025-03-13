@@ -62,11 +62,11 @@ action :configure do
     begin
       cv_client_id(new_resource.endpoint, api_token)
     rescue
-      Chef::Log.warn "Unable to get client id (counter: #{counter}), retrying after sleep of 10 seconds"
-      sleep(10)
+      Chef::Log.warn "Unable to get client id (counter: #{counter}), retrying after sleep of 30 seconds (max: 210 seconds)"
+      sleep(30)
     end
     counter += 1
-    break if counter > 3
+    break if counter > 7
 
     # Reinitilize authentication to refresh cache
     api_token = if new_resource.use_local_login

@@ -219,8 +219,7 @@ action :install do
         break if diff >= new_resource.registration_timeout
       end
       unless cvlt_registered?
-        puts "CommVault registration unsuccesful after #{new_resource.registration_timeout} seconds, uninstalling"
-        # TODO: Call uninstall
+        puts "CommVault registration has not completed after #{new_resource.registration_timeout} seconds, ignoring"
       end
     end
   end
