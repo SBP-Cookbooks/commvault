@@ -46,38 +46,38 @@ action :configure do
     end
   end
 
-  api_token = if new_resource.use_local_login
-                # Get the api token using qlogin --localadmin
-                cv_token_local
-              else
-                # Get the api token using login to the API
-                cv_token_api(new_resource.endpoint, new_resource.login_user, new_resource.login_pass)
-              end
+  api_token = ''
+  # Try 3 times (with 30 secs interval) to get the client id (SAFETY PRECAUTION)
+  counter = 1
+  loop do
+    begin
+      api_token = if new_resource.use_local_login
+                    # Get the api token using qlogin --localadmin
+                    cv_token_local
+                  else
+                    # Get the api token using login to the API
+                    cv_token_api(new_resource.endpoint, new_resource.login_user, new_resource.login_pass)
+                  end
+      break
+    rescue
+      Chef::Log.warn "Unable to get token (counter: #{counter}), retrying after sleep of 30 seconds"
+      sleep(30)
+    end
+
+    counter += 1
+    if counter > 8
+      Chef::Log.error 'Unable to obtain token from platform, bailing for this run'
+      return
+    end
+  end
 
   Chef::Log.debug "Token: [#{api_token}]"
 
-  # Try 3 times (with 10 secs interval) to get the client id (SAFETY PRECAUTION)
-  counter = 0
-  loop do
-    begin
-      cv_client_id(new_resource.endpoint, api_token)
-    rescue
-      Chef::Log.warn "Unable to get client id (counter: #{counter}), retrying after sleep of 10 seconds"
-      sleep(10)
-    end
-    counter += 1
-    break if counter > 3
-
-    # Reinitilize authentication to refresh cache
-    api_token = if new_resource.use_local_login
-                  # Get the api token using qlogin --localadmin
-                  cv_token_local
-                else
-                  # Get the api token using login to the API
-                  cv_token_api(new_resource.endpoint, new_resource.login_user, new_resource.login_pass)
-                end
-
-    Chef::Log.debug "Token: [#{api_token}]"
+  begin
+    cv_client_id(new_resource.endpoint, api_token)
+  rescue
+    Chef::Log.warn 'Unable to get client id'
+    return
   end
 
   # Commvault does not "install" the file system agent anymore if the installation is done in restore only mode, so do it here

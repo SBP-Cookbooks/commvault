@@ -202,7 +202,7 @@ action :install do
   # Delete cache if it exists
   ruby_block 'Cache delete' do
     block do
-      cache_delete()
+      cache_delete
     end
   end
 
