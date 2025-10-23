@@ -10,12 +10,15 @@ require 'digest'
 module CommVault
   module Api
     def cv_token_local
-      token = if platform?('windows')
-                Mixlib::ShellOut.new('C:\\Progra~1\\Commvault\\ContentStore\\Base\\QLogin.exe -localadmin -gt')
+      binary = if platform?('windows')
+                'C:\\Progra~1\\Commvault\\ContentStore\\Base\\QLogin.exe'
               else
-                Mixlib::ShellOut.new('/opt/commvault/Base/qlogin -localadmin -gt')
+                '/opt/commvault/Base/qlogin'
               end
+      raise "Missing qlogin binary at location: (#{binary})" unless File.exist?(binary)
+      token = Mixlib::ShellOut.new("#{binary} -localadmin -gt")
       token.run_command
+      raise "Did not receive a token from the platform" if token.stdout.length <= 10
       "QSDK #{token.stdout}"
     end
 
