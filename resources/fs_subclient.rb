@@ -66,7 +66,7 @@ action :configure do
 
     counter += 1
     if counter > 8
-      Chef::Log.error "Unable to obtain token, bailing"
+      Chef::Log.error 'Unable to obtain token from platform, bailing for this run'
       return
     end
   end
@@ -76,7 +76,7 @@ action :configure do
   begin
     cv_client_id(new_resource.endpoint, api_token)
   rescue
-    Chef::Log.warn "Unable to get client id"
+    Chef::Log.warn 'Unable to get client id'
     return
   end
 

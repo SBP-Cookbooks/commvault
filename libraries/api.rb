@@ -11,14 +11,14 @@ module CommVault
   module Api
     def cv_token_local
       binary = if platform?('windows')
-                'C:\\Progra~1\\Commvault\\ContentStore\\Base\\QLogin.exe'
-              else
-                '/opt/commvault/Base/qlogin'
-              end
+                 'C:\\Progra~1\\Commvault\\ContentStore\\Base\\QLogin.exe'
+               else
+                 '/opt/commvault/Base/qlogin'
+               end
       raise "Missing qlogin binary at location: (#{binary})" unless File.exist?(binary)
       token = Mixlib::ShellOut.new("#{binary} -localadmin -gt")
       token.run_command
-      raise "Did not receive a token from the platform" if token.stdout.length <= 10
+      raise 'Did not receive a token from the platform' if token.stdout.length <= 10
       "QSDK #{token.stdout}"
     end
 
@@ -29,14 +29,14 @@ module CommVault
       response = _post(url, nil, body)
       raise "Incorrect output received while logging into REST API endpoint #{endpoint}" unless response
       raise "API gave error code [#{response.code}] for our request to login\nResponse: [#{response.message}]" if response.code.to_i != 200
-      _extract(response.body(), 'token')
+      _extract(response.body, 'token')
     end
 
     def cv_client_name
       if platform?('windows')
         registry_get_values('HKLM\SOFTWARE\CommVault Systems\Galaxy\Instance001').select { |x| x[:name].casecmp?('sPhysicalNodeName') }.first[:data]
       else
-        File.readlines('/etc/CommVaultRegistry/Galaxy/Instance001/.properties').grep(/sPhysicalNodeName/)[0].chomp.split[1]
+        File.readlines('/etc/CommVaultRegistry/Galaxy/Instance001/.properties').grep(/sPhysicalNodeName/).first.chomp.split[1]
       end
     end
 
@@ -164,7 +164,7 @@ module CommVault
       url = URI("#{endpoint}/GetId?clientname=#{cv_client_name}")
       response = _get(url, cv_token)
       raise "Unable to get client id for client name [#{cv_client_name}]" unless response && response.code.to_i == 200
-      cid = _extract(response.body(), 'clientId')
+      cid = _extract(response.body, 'clientId')
       raise "Incorrect client id received from API -> [#{cid}], code: [#{response.code}]" unless cid && cid.match(/^(\d)+$/)
       cid.to_i
     end
